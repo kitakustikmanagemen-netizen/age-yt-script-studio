@@ -361,7 +361,7 @@ function renderKeySettings() {
     list.appendChild(row);
   });
 
-  document.getElementById("worker-url-input").value = getWorkerUrl();
+  document.getElementById("worker-url-input").value = localStorage.getItem(LS_WORKER) || "";
 }
 
 function maskKey(k) {
