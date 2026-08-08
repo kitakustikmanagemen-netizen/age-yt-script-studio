@@ -209,4 +209,6 @@ Language & tone: ${aud.note}`;
 ];
 
 // Model default — ubah di sini kalau ingin pakai model lain
-const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash";
+// Catatan: gemini-2.0-flash sudah DIMATIKAN Google per 1 Juni 2026.
+// gemini-2.5-flash masih aktif (rencana pensiun: 16 Okt 2026, cek lagi nanti).
+const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
