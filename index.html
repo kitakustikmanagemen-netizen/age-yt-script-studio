@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AGE YT# Script & Caption Studio</title>
+  <meta name="description" content="Semua kebutuhan teks konten dalam satu tempat — skrip, hook, caption, hashtag, CTA, judul viral, soft selling, dan testimoni." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1 class="app-title">
+        AGE YT# <span class="tag">01 / 05</span>
+        <span class="app-subtitle">Script &amp; Caption Studio</span>
+      </h1>
+      <button id="open-settings-btn" class="settings-btn">🔑 Pengaturan API Key</button>
+    </header>
+
+    <div class="main-layout">
+      <nav id="feature-nav" class="feature-nav"></nav>
+
+      <main class="content-area">
+        <section class="panel">
+          <h2 id="form-title" class="panel-title"></h2>
+          <p id="form-subtitle" class="panel-subtitle"></p>
+          <div id="form-root"></div>
+        </section>
+
+        <section id="output-panel" class="panel hidden">
+          <div class="output-header">
+            <h2 id="output-title" class="panel-title" style="margin:0;"></h2>
+            <div class="output-meta" id="output-meta"></div>
+            <div class="output-actions">
+              <button id="copy-btn" class="btn-secondary">📋 Copy</button>
+              <button id="send-mpt-btn" class="btn-secondary">➡️ Kirim ke MPT</button>
+            </div>
+          </div>
+          <div id="output-text"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal Pengaturan API Key -->
+  <div id="key-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2>🔑 Pengaturan API Key</h2>
+      <p class="modal-desc">
+        API key Gemini kamu disimpan <strong>hanya di browser ini</strong> (localStorage), tidak pernah
+        dikirim ke server pihak ketiga selain langsung ke Google lewat Worker proxy milikmu sendiri.
+        Bisa tambah lebih dari 1 key — kalau satu kena limit, otomatis pindah ke key berikutnya.
+      </p>
+
+      <div id="key-list" class="key-list"></div>
+
+      <div class="key-add-row">
+        <input id="new-key-label" type="text" placeholder="Label (opsional)" />
+        <input id="new-key-input" type="password" placeholder="Tempel API key Gemini di sini" />
+        <button id="add-key-btn" class="btn-add-key">+ Tambah</button>
+      </div>
+
+      <hr class="divider" />
+
+      <label class="field-label" for="worker-url-input" style="margin-top:0;">URL Worker Proxy</label>
+      <p class="modal-desc" style="margin-top:-4px;">
+        Alamat Cloudflare Worker hasil deploy kamu, contoh:
+        <code>https://age-yt-proxy.namamu.workers.dev</code>
+      </p>
+      <div class="worker-url-row">
+        <input id="worker-url-input" type="text" placeholder="https://....workers.dev" />
+        <button id="save-worker-url-btn" class="btn-add-key">Simpan</button>
+      </div>
+
+      <div class="close-modal-row">
+        <button id="close-settings-btn" class="btn-close-modal">Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifikasi -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
