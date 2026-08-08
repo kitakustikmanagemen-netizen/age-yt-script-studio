@@ -12,6 +12,7 @@ const LS_LAST_AUD  = "age_yt_last_audience";
 let state = {
   activeFeature : FEATURES[0].id,
   isGenerating  : false,
+  retryCount    : 0,
 };
 
 // ─── API KEY helpers ──────────────────────────────────────────────────────────
@@ -147,8 +148,9 @@ function renderForm() {
 
 // ─── Generate ─────────────────────────────────────────────────────────────────
 
-async function handleGenerate() {
+async function handleGenerate(isRetry) {
   if (state.isGenerating) return;
+  if (!isRetry) state.retryCount = 0;
 
   const f       = FEATURES.find(f => f.id === state.activeFeature);
   const topic   = document.getElementById("topic-input").value.trim();
@@ -188,7 +190,7 @@ async function handleGenerate() {
     const text = await callWorker(workerUrl, apiKey, prompt);
     showOutput(f, text, audience);
   } catch (err) {
-    handleError(err, () => handleGenerate());
+    handleError(err);
   } finally {
     setGenerating(false);
   }
@@ -222,15 +224,19 @@ async function callWorker(workerUrl, apiKey, prompt) {
   return data.text;
 }
 
-function handleError(err, retry) {
-  const isLimit = err.status === 401 || err.status === 403 || err.status === 429;
-  if (isLimit && rotateKey()) {
+function handleError(err) {
+  const isLimit  = err.status === 401 || err.status === 403 || err.status === 429;
+  const maxTries = getKeys().length;
+
+  if (isLimit && state.retryCount < maxTries - 1 && rotateKey()) {
+    state.retryCount++;
     showError("API key sebelumnya bermasalah. Otomatis mencoba key berikutnya…");
-    setTimeout(retry, 800);
+    setTimeout(() => handleGenerate(true), 800);
     return;
   }
+
   showError(isLimit
-    ? "API key salah atau kuota habis. Cek Pengaturan API Key."
+    ? "Semua API key kena limit atau kuota habis. Tunggu 1 menit, atau cek kuota di Google AI Studio → API Keys."
     : `Terjadi kesalahan: ${err.message}`);
 }
 
