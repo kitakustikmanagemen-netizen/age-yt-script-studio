@@ -29,7 +29,7 @@ function getActiveIdx() {
   return Number.isNaN(i) ? 0 : i;
 }
 function getActiveKey() { return getKeys()[getActiveIdx()]?.key || null; }
-function getWorkerUrl() { return localStorage.getItem(LS_WORKER) || ""; }
+function getWorkerUrl() { return localStorage.getItem(LS_WORKER) || DEFAULT_WORKER_URL; }
 function saveWorkerUrl(u) { localStorage.setItem(LS_WORKER, u.trim()); }
 
 function rotateKey() {
@@ -416,7 +416,7 @@ function init() {
   });
 
   // buka modal otomatis kalau belum setup
-  if (!getKeys().length || !getWorkerUrl()) openModal();
+  if (!getKeys().length) openModal();
 }
 
 document.addEventListener("DOMContentLoaded", init);
