@@ -209,6 +209,7 @@ Language & tone: ${aud.note}`;
 ];
 
 // Model default — ubah di sini kalau ingin pakai model lain
-// Catatan: gemini-2.0-flash sudah DIMATIKAN Google per 1 Juni 2026.
-// gemini-2.5-flash masih aktif (rencana pensiun: 16 Okt 2026, cek lagi nanti).
-const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
+// Riwayat: gemini-2.0-flash dimatikan 1 Jun 2026.
+// gemini-2.5-flash masih jalan tapi Google sudah rilis lineup baru (Gemini 3.x).
+// Per Agustus 2026, gemini-3.5-flash adalah model gratis yang direkomendasikan.
+const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash";
