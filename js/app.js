@@ -215,7 +215,7 @@ async function handleGenerate(isRetry) {
   setGenerating(true);
 
   try {
-    const text = await callWorker(workerUrl, apiKey, prompt);
+    const text = await generateComplete(workerUrl, apiKey, prompt);
     showOutput(f, text, audience);
   } catch (err) {
     handleError(err);
@@ -231,6 +231,41 @@ function setGenerating(on) {
   if (!btn) return;
   btn.disabled  = on;
   txt.textContent = on ? "⏳ Membuat konten..." : "✨ Generate";
+}
+
+// Batas maksimal berapa kali auto-lanjut kalau teks kepotong (MAX_TOKENS).
+// Tidak dibuat tak terbatas supaya tidak membakar kuota kalau terus-terusan
+// terpotong — 3 lanjutan cukup untuk skrip/testimonial terpanjang sekalipun.
+const MAX_AUTO_CONTINUE = 3;
+
+// Generate sampai teks benar-benar utuh (tidak terpotong di tengah kalimat).
+// User hanya perlu klik Generate sekali — kalau Gemini memotong respons
+// karena limit token, sistem otomatis minta lanjutan dan menyambungnya
+// jadi satu teks utuh, tanpa user harus klik ulang.
+async function generateComplete(workerUrl, apiKey, initialPrompt) {
+  let fullText   = "";
+  let prompt     = initialPrompt;
+  let continues  = 0;
+
+  while (true) {
+    const { text, finishReason } = await callWorker(workerUrl, apiKey, prompt);
+    fullText += text;
+
+    const isTruncated = finishReason === "MAX_TOKENS";
+    if (!isTruncated || continues >= MAX_AUTO_CONTINUE) break;
+
+    continues++;
+    txtSetContinuing();
+    const tailContext = fullText.slice(-500);
+    prompt = `Tulisan berikut TERPOTONG karena limit panjang, lanjutkan PERSIS dari kata terakhir. JANGAN mengulang bagian yang sudah ada, JANGAN menambahkan pembuka/basa-basi baru, langsung sambung kalimatnya:\n\n"""${tailContext}"""\n\nLanjutan:`;
+  }
+
+  return fullText.trim();
+}
+
+function txtSetContinuing() {
+  const txt = document.getElementById("generate-btn-text");
+  if (txt) txt.textContent = "⏳ Menyambung teks yang terpotong...";
 }
 
 async function callWorker(workerUrl, apiKey, prompt) {
@@ -249,7 +284,7 @@ async function callWorker(workerUrl, apiKey, prompt) {
 
   const data = await res.json();
   if (!data.text) throw new Error("Respons dari API kosong atau tidak sesuai format.");
-  return data.text;
+  return { text: data.text, finishReason: data.finishReason || null };
 }
 
 function handleError(err) {
