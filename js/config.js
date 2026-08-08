@@ -213,3 +213,9 @@ Language & tone: ${aud.note}`;
 // gemini-2.5-flash masih jalan tapi Google sudah rilis lineup baru (Gemini 3.x).
 // Per Agustus 2026, gemini-3.5-flash adalah model gratis yang direkomendasikan.
 const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash";
+
+// Worker proxy default (milik pemilik proyek) — dipakai bersama semua user
+// supaya user tidak perlu deploy Worker sendiri. Worker ini stateless dan
+// tidak menyimpan API key siapapun, jadi aman dipakai bareng-bareng.
+// User tetap bisa ganti ke Worker mereka sendiri lewat Pengaturan API Key kalau mau.
+const DEFAULT_WORKER_URL = "https://age-yt-proxy.kitakustik-managemen.workers.dev/";
