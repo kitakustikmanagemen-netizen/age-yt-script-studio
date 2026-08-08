@@ -1,6 +1,50 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <style id="andriage-gate-style">
+    html, body { visibility: hidden !important; }
+  </style>
+  <script>
+  (function(){
+    var TOOL_SLUG = "scriptstudio"; // <-- WAJIB DIGANTI per tool
+    var API_BASE  = "https://api.andriage.my.id";
+    var LOGIN_URL = "https://login.andriage.my.id/";
+    var ADMIN_URL = "https://hubungi.andriage.my.id/";
+    function reveal(){
+      var s = document.getElementById("andriage-gate-style");
+      if (s) s.remove();
+    }
+    function block(message, buttonText, buttonUrl){
+      document.documentElement.innerHTML =
+        '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;' +
+        'background:#0F1117;color:#F3F0FA;font-family:system-ui,-apple-system,sans-serif;' +
+        'padding:24px;text-align:center;">' +
+          '<div style="max-width:420px;">' +
+            '<div style="font-size:42px;margin-bottom:16px;">🔒</div>' +
+            '<h1 style="font-size:19px;font-weight:700;margin:0 0 10px;line-height:1.4;">' + message + '</h1>' +
+            '<a href="' + buttonUrl + '" style="display:inline-block;margin-top:14px;padding:12px 24px;' +
+            'border-radius:10px;background:#FF2E9A;color:#fff;text-decoration:none;font-weight:600;' +
+            'font-size:14px;">' + buttonText + '</a>' +
+          '</div>' +
+        '</div>';
+      document.documentElement.style.visibility = "visible";
+    }
+    fetch(API_BASE + "/check-access?tool=" + TOOL_SLUG, { credentials: "include" })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data.access) {
+          reveal();
+        } else if (data.reason === "not_logged_in") {
+          block("Kamu perlu masuk ke akun dulu untuk memakai tool ini.", "Masuk ke Akun", LOGIN_URL);
+        } else {
+          block("Tool ini belum bisa kamu akses. Hubungi admin untuk mendapatkan akses.", "Hubungi Admin", ADMIN_URL);
+        }
+      })
+      .catch(function(){
+        block("Gagal memeriksa akses. Coba muat ulang halaman.", "Muat Ulang", location.href);
+      });
+  })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AGE YT# Script & Caption Studio</title>
