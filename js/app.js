@@ -8,6 +8,7 @@ const LS_ACTIVE_IDX = "age_yt_active_key_index";
 const LS_WORKER    = "age_yt_worker_url";
 const LS_LAST_PLAT = "age_yt_last_platform";
 const LS_LAST_AUD  = "age_yt_last_audience";
+const LS_LAST_YT_FMT = "age_yt_last_ytformat";
 
 let state = {
   activeFeature : FEATURES[0].id,
@@ -96,6 +97,7 @@ function renderForm() {
 
   // audience options (chip buttons)
   const lastAud = localStorage.getItem(LS_LAST_AUD) || AUDIENCE_OPTIONS[0].value;
+  const lastYtFmt = localStorage.getItem(LS_LAST_YT_FMT) || "shorts";
   const audChips = AUDIENCE_OPTIONS.map(a => `
     <button type="button"
       class="aud-chip${a.value === lastAud ? " selected" : ""}"
@@ -111,6 +113,14 @@ function renderForm() {
 
     <label class="field-label" for="platform-select">Platform</label>
     <select id="platform-select" class="field-input">${platOpts}</select>
+
+    <div id="yt-format-row" class="${lastPlat === "YouTube" ? "" : "hidden"}">
+      <label class="field-label">Format YouTube</label>
+      <div class="aud-chips" id="yt-format-chips">
+        <button type="button" class="aud-chip${lastYtFmt === "long" ? "" : " selected"}" data-ytfmt="shorts" style="--chip-color:#FF4444">▶ Shorts (&lt;60 detik)</button>
+        <button type="button" class="aud-chip${lastYtFmt === "long" ? " selected" : ""}" data-ytfmt="long" style="--chip-color:#FF4444">🎬 Video Panjang</button>
+      </div>
+    </div>
 
     <label class="field-label">Target Penonton</label>
     <div class="aud-chips" id="aud-chips">${audChips}</div>
@@ -129,18 +139,30 @@ function renderForm() {
       <span id="generate-btn-text">✨ Generate</span>
     </button>`;
 
-  // audience chip click
-  root.querySelectorAll(".aud-chip").forEach(btn => {
+  // audience chip click (scoped to #aud-chips only — yt-format-chips shares the same CSS class)
+  const audChipsRoot = document.getElementById("aud-chips");
+  audChipsRoot.querySelectorAll(".aud-chip").forEach(btn => {
     btn.addEventListener("click", () => {
-      root.querySelectorAll(".aud-chip").forEach(b => b.classList.remove("selected"));
+      audChipsRoot.querySelectorAll(".aud-chip").forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
       localStorage.setItem(LS_LAST_AUD, btn.dataset.aud);
     });
   });
 
-  // remember last platform
+  // yt format chip click
+  const ytFmtRow = document.getElementById("yt-format-row");
+  ytFmtRow.querySelectorAll(".aud-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      ytFmtRow.querySelectorAll(".aud-chip").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      localStorage.setItem(LS_LAST_YT_FMT, btn.dataset.ytfmt);
+    });
+  });
+
+  // remember last platform + toggle YouTube format row
   document.getElementById("platform-select").addEventListener("change", e => {
     localStorage.setItem(LS_LAST_PLAT, e.target.value);
+    ytFmtRow.classList.toggle("hidden", e.target.value !== "YouTube");
   });
 
   document.getElementById("generate-btn").addEventListener("click", handleGenerate);
@@ -156,8 +178,10 @@ async function handleGenerate(isRetry) {
   const topic   = document.getElementById("topic-input").value.trim();
   const plat    = document.getElementById("platform-select").value;
   const detail  = document.getElementById("detail-input").value.trim();
-  const audEl   = document.querySelector(".aud-chip.selected");
+  const audEl   = document.querySelector("#aud-chips .aud-chip.selected");
   const audience = audEl ? audEl.dataset.aud : AUDIENCE_OPTIONS[0].value;
+  const ytFmtEl  = document.querySelector("#yt-format-chips .aud-chip.selected");
+  const ytFormat = ytFmtEl ? ytFmtEl.dataset.ytfmt : "shorts";
   const extraEl  = document.getElementById("extra-field");
   const errorEl  = document.getElementById("form-error");
 
@@ -180,7 +204,11 @@ async function handleGenerate(isRetry) {
     return;
   }
 
-  const ctx = { topic, platform: plat, detail, audience };
+  const platformLabel = plat === "YouTube"
+    ? (ytFormat === "long" ? "YouTube (video panjang / long-form)" : "YouTube Shorts (vertikal, di bawah 60 detik)")
+    : plat;
+
+  const ctx = { topic, platform: platformLabel, detail, audience };
   if (extraEl && f.extraField) ctx[f.extraField.id] = extraEl.value.trim();
 
   const prompt = f.buildPrompt(ctx);
